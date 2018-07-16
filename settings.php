@@ -1,6 +1,5 @@
 <?php
 /**
- * Authentication Plugin: Drupal Services Single Sign-on
  *
  * This module is based on work by Arsham Skrenes.
  * This module will look for a Drupal cookie that represents a valid,
@@ -12,7 +11,7 @@
  * PHP version 5
  *
  * @category CategoryName
- * @package  auth_drupalservices
+ * @package  Drupal_Services
  * @author   Dave Cannon <dave@baljarra.com>
  * @license  http://www.gnu.org/copyleft/gpl.html GNU Public License
  * @link     https://github.com/cannod/moodle-drupalservices
@@ -61,13 +60,12 @@ $drupalauth = get_auth_plugin('drupalservices');
 **/
 
 // define default settings:
-$defaults = array(
+$defaults=array(
   'host_uri' => $CFG->wwwroot,
   'cookiedomain' => '',
-  'remote_user' => '',
-  'remote_pw' => '',
+  'remote_user' => 'monish.deb',
+  'remote_pw' => 'mjssms123',
   'remove_user' => AUTH_REMOVEUSER_KEEP,
-  'page_size' => 50,
   'cohorts' => 0,
   'cohort_view' => "",
 );
@@ -147,7 +145,7 @@ if($config->cookiedomain) {
 
   if ($loggedin_user = $apiObj->Connect()) {
 
-    if ($loggedin_user->uid[0]->value !== false) {
+    if ($loggedin_user->user->uid !== false) {
       debugging("<pre>Service were reached, here's the logged in user:".print_r($loggedin_user,true)."</pre>", DEBUG_DEVELOPER);
       $endpoint_reachable=true;
       $tests['session'] = array('success' => true, 'message' => "system/connect: User session data reachable and you are logged in!");
@@ -155,9 +153,9 @@ if($config->cookiedomain) {
       $tests['session'] = array('success' => false, 'message' => "system/connect: User session data reachable but you aren't logged in!");
     }
     //this data should be cached - its possible that a non-admin user
-    $fulluser = (array)$loggedin_user;
-    debugging("<pre>here's the complete user:".print_r($fulluser,true)."</pre>", DEBUG_DEVELOPER);
-
+   $fulluser=(array)$apiObj->Index("user/".$loggedin_user->user->uid);
+ // $fulluser=(array)$apiObj->Index("user/222");
+     debugging("<pre>here's the complete user:".print_r($fulluser,true)."</pre>", DEBUG_DEVELOPER);
     // turn the fulluser fields into key/value options
     $fulluser_keys=array_combine(array_keys($fulluser), array_keys($fulluser));
   } else {
@@ -223,14 +221,6 @@ if($config->cookiedomain !==false && $endpoint_reachable) {
 //      AUTH_REMOVEUSER_SUSPEND => get_string('auth_remove_suspend', 'auth'),
 //      AUTH_REMOVEUSER_FULLDELETE => get_string('auth_remove_delete', 'auth'),
 //    )));
-
-  // Note that the values here are directly tied to the configured options within
-  // the drupal module's view that manages the user/list/all display.
-  $size_options = array(5, 10, 25, 50, 100, 150, 200, 250, 300, 400, 500);
-  $drupalssosettings->add(new admin_setting_configselect('auth_drupalservices/page_size',
-    new lang_string('auth_drupalservices_page_size_key', 'auth_drupalservices'),
-    new lang_string('auth_drupalservices_page_size', 'auth_drupalservices'),
-    $defaults->page_size, array_combine($size_options, $size_options) ));
 
   //todo: these fields shouldn't be here if cohorts are not enabled in moodle
   $drupalssosettings->add(new admin_setting_configselect('auth_drupalservices/cohorts',
