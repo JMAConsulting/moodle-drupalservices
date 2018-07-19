@@ -126,7 +126,7 @@ class auth_plugin_drupalservices extends auth_plugin_base
         //create/update looks up the user and writes updated information to the DB
         $this->create_update_user($drupaluser);
 
-        $user = get_complete_user_data('idnumber', $uid);
+        $user = get_complete_user_data('username', $ret->user->name);
 
         debugging("<pre>the user that should have been created or updated is:\r\n".print_r($user,true)."</pre>",DEBUG_DEVELOPER);
 
